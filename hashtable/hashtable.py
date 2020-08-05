@@ -2,6 +2,7 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -22,7 +23,11 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-
+        if capacity >= MIN_CAPACITY:
+            self.capacity = capacity
+        else:
+            self.capacity = MIN_CAPACITY
+        self.buckets = [None] * capacity
 
     def get_num_slots(self):
         """
@@ -34,8 +39,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return len(self.buckets)
 
     def get_load_factor(self):
         """
@@ -44,7 +48,6 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
 
     def fnv1(self, key):
         """
@@ -55,22 +58,19 @@ class HashTable:
 
         # Your code here
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
-
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
+        # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
     def put(self, key, value):
@@ -81,8 +81,6 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
 
     def delete(self, key):
         """
@@ -92,8 +90,6 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
 
     def get(self, key):
         """
@@ -103,8 +99,6 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
 
     def resize(self, new_capacity):
         """
@@ -116,9 +110,8 @@ class HashTable:
         # Your code here
 
 
-
 if __name__ == "__main__":
-    ht = HashTable(8)
+    ht = HashTable(256)
 
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
