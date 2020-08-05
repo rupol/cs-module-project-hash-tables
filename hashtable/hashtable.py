@@ -84,6 +84,8 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        self.buckets[index] = value
 
     def delete(self, key):
         """
@@ -93,6 +95,12 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        value = self.buckets[self.hash_index(key)]
+        if value:
+            self.buckets[index] = None
+        else:
+            return "key not found"
 
     def get(self, key):
         """
@@ -102,6 +110,11 @@ class HashTable:
 
         Implement this.
         """
+        value = self.buckets[self.hash_index(key)]
+        if value:
+            return value
+        else:
+            return None
 
     def resize(self, new_capacity):
         """
@@ -136,14 +149,14 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     # Test resizing
-    old_capacity = ht.get_num_slots()
-    ht.resize(ht.capacity * 2)
-    new_capacity = ht.get_num_slots()
+    # old_capacity = ht.get_num_slots()
+    # ht.resize(ht.capacity * 2)
+    # new_capacity = ht.get_num_slots()
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # Test if data intact after resizing
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+    # # Test if data intact after resizing
+    # for i in range(1, 13):
+    #     print(ht.get(f"line_{i}"))
 
-    print("")
+    # print("")
