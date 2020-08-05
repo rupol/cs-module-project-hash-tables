@@ -22,7 +22,6 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
         if capacity >= MIN_CAPACITY:
             self.capacity = capacity
         else:
@@ -64,6 +63,10 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
+        hash = 5381
+        for char in key:
+            hash = ((hash << 5) + hash) + ord(char)
+        return hash & 0xffffffff
 
     def hash_index(self, key):
         """
