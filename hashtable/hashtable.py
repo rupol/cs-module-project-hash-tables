@@ -165,11 +165,27 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # make a new array
+        old_buckets = self.buckets
+
+        # check new_capacity
+        if new_capacity >= MIN_CAPACITY:
+            self.capacity = new_capacity
+        else:
+            self.capacity = MIN_CAPACITY
+        self.buckets = [None] * self.capacity
+        self.num_items = 0
+        # go through each linked list in the old array
+        for item in old_buckets:
+            current = item
+            while current is not None:
+                # insert the items into the new array
+                self.put(current.key, current.value)
+                current = current.next
 
 
 if __name__ == "__main__":
-    ht = HashTable(16)
+    ht = HashTable(8)
 
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
@@ -191,20 +207,14 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     # Test resizing
-    # old_capacity = ht.get_num_slots()
-    # ht.resize(ht.capacity * 2)
-    # new_capacity = ht.get_num_slots()
+    old_capacity = ht.get_num_slots()
+    ht.resize(ht.capacity * 2)
+    new_capacity = ht.get_num_slots()
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    # Test if data intact after resizing
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
     print("")
-    print(ht.get("line_1"))
-    ht.put("line_1", "New line 1 value")
-    print(ht.get("line_1"))
-    print(ht.get_load_factor())
-    print(ht.delete("line_11"))
-    print(ht.get_load_factor())
