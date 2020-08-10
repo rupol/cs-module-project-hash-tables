@@ -108,6 +108,11 @@ class HashTable:
             self.buckets[index] = HashTableEntry(key, value)
             self.num_items += 1
 
+        # automatic resizing if load factor increases above 0.7
+        load_factor = self.get_load_factor()
+        if load_factor > 0.7:
+            self.resize(self.capacity * 2)
+
     def delete(self, key):
         """
         Remove the value stored with the given key.
@@ -186,7 +191,7 @@ class HashTable:
 
 if __name__ == "__main__":
     ht = HashTable(8)
-
+    capacity_1 = ht.get_num_slots()
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
     ht.put("line_3", "All mimsy were the borogoves,")
@@ -195,10 +200,12 @@ if __name__ == "__main__":
     ht.put("line_6", "The jaws that bite, the claws that catch!")
     ht.put("line_7", "Beware the Jubjub bird, and shun")
     ht.put("line_8", 'The frumious Bandersnatch!"')
+    capacity_2 = ht.get_num_slots()
     ht.put("line_9", "He took his vorpal sword in hand;")
     ht.put("line_10", "Long time the manxome foe he sought--")
     ht.put("line_11", "So rested he by the Tumtum tree")
     ht.put("line_12", "And stood awhile in thought.")
+    capacity_3 = ht.get_num_slots()
 
     print("")
 
@@ -207,14 +214,14 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     # Test resizing
-    old_capacity = ht.get_num_slots()
-    ht.resize(ht.capacity * 2)
-    new_capacity = ht.get_num_slots()
+    # old_capacity = ht.get_num_slots()
+    # ht.resize(ht.capacity * 2)
+    # new_capacity = ht.get_num_slots()
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {capacity_1} to {capacity_2} to {capacity_3}.\n")
 
     # Test if data intact after resizing
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+    # for i in range(1, 13):
+    #     print(ht.get(f"line_{i}"))
 
     print("")
