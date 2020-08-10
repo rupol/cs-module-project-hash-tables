@@ -27,6 +27,7 @@ class HashTable:
         else:
             self.capacity = MIN_CAPACITY
         self.buckets = [None] * capacity
+        self.num_items = 0
 
     def get_num_slots(self):
         """
@@ -46,7 +47,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.num_items / len(self.buckets)
 
     def fnv1(self, key):
         """
@@ -85,7 +86,27 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        self.buckets[index] = value
+        # find the start of the linked list using the index
+        if self.buckets[index] is not None:
+            # search through the linked list
+            current = self.buckets[index]
+            while current is not None:
+                # if the key already exists
+                if current.key == key:
+                    # overwrite the value
+                    current.value = value
+                    return
+                current = current.next
+            # add new HashTableEntry into the head of linked list
+            head = self.buckets[index]
+            self.buckets[index] = HashTableEntry(key, value)
+            self.num_items += 1
+            self.buckets[index].next = head
+        # slot is empty
+        else:
+            # add new HashTableEntry
+            self.buckets[index] = HashTableEntry(key, value)
+            self.num_items += 1
 
     def delete(self, key):
         """
@@ -96,11 +117,29 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        value = self.buckets[self.hash_index(key)]
-        if value:
-            self.buckets[index] = None
-        else:
-            return "key not found"
+        if self.buckets[index] is not None:
+            current = self.buckets[index]
+            # if key is the current index (head)
+            if current.key == key:
+                # point the index to the next item in the linked list
+                self.buckets[index] = current.next
+                self.num_items -= 1
+                return current.value
+            # otherwise, search through the linked list for the key
+            previous = current
+            current = current.next
+
+            while current is not None:
+                # if the key exists
+                if current.key == key:
+                    # link the prev to next (cut out the current node)
+                    previous.next = current.next
+                    self.num_items -= 1
+                    return current.value
+                else:
+                    previous = current
+                    current = current.next
+        return "key not found"
 
     def get(self, key):
         """
@@ -110,11 +149,14 @@ class HashTable:
 
         Implement this.
         """
-        value = self.buckets[self.hash_index(key)]
-        if value:
-            return value
-        else:
-            return None
+        index = self.hash_index(key)
+        current = self.buckets[index]
+        while current is not None:
+            # if the key exists
+            if current.key == key:
+                return current.value
+            current = current.next
+        return None
 
     def resize(self, new_capacity):
         """
@@ -127,7 +169,7 @@ class HashTable:
 
 
 if __name__ == "__main__":
-    ht = HashTable(256)
+    ht = HashTable(16)
 
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
@@ -159,4 +201,10 @@ if __name__ == "__main__":
     # for i in range(1, 13):
     #     print(ht.get(f"line_{i}"))
 
-    # print("")
+    print("")
+    print(ht.get("line_1"))
+    ht.put("line_1", "New line 1 value")
+    print(ht.get("line_1"))
+    print(ht.get_load_factor())
+    print(ht.delete("line_11"))
+    print(ht.get_load_factor())
