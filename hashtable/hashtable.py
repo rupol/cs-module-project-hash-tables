@@ -109,8 +109,7 @@ class HashTable:
             self.num_items += 1
 
         # automatic resizing if load factor increases above 0.7
-        load_factor = self.get_load_factor()
-        if load_factor > 0.7:
+        if self.get_load_factor() > 0.7:
             self.resize(self.capacity * 2)
 
     def delete(self, key):
@@ -129,6 +128,9 @@ class HashTable:
                 # point the index to the next item in the linked list
                 self.buckets[index] = current.next
                 self.num_items -= 1
+                # automatic resizing if load factor decreases below 0.2
+                if self.get_load_factor() < 0.2:
+                    self.resize(self.capacity // 2)
                 return current.value
             # otherwise, search through the linked list for the key
             previous = current
@@ -140,6 +142,9 @@ class HashTable:
                     # link the prev to next (cut out the current node)
                     previous.next = current.next
                     self.num_items -= 1
+                    # automatic resizing if load factor decreases below 0.2
+                    if self.get_load_factor() < 0.2:
+                        self.resize(self.capacity // 2)
                     return current.value
                 else:
                     previous = current
@@ -209,19 +214,28 @@ if __name__ == "__main__":
 
     print("")
 
-    # Test storing beyond capacity
+    # Test if data intact after resizing
     for i in range(1, 13):
         print(ht.get(f"line_{i}"))
 
-    # Test resizing
-    # old_capacity = ht.get_num_slots()
-    # ht.resize(ht.capacity * 2)
-    # new_capacity = ht.get_num_slots()
-
     print(f"\nResized from {capacity_1} to {capacity_2} to {capacity_3}.\n")
 
+    ht.delete("line_4")
+    ht.delete("line_5")
+    ht.delete("line_6")
+    ht.delete("line_7")
+    ht.delete("line_8")
+    ht.delete("line_9")
+    capacity_4 = ht.get_num_slots()
+    ht.delete("line_10")
+    ht.delete("line_11")
+    ht.delete("line_12")
+    capacity_5 = ht.get_num_slots()
+
     # Test if data intact after resizing
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    for i in range(1, 4):
+        print(ht.get(f"line_{i}"))
+
+    print(f"\nResized from {capacity_3} to {capacity_4} to {capacity_5}.\n")
 
     print("")
