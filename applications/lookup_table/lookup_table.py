@@ -23,6 +23,7 @@ def build_slowfun_lookup():
     return lookup_table
 
 
+start = time.time()
 slowfun_lookup_table = build_slowfun_lookup()
 
 
@@ -34,7 +35,6 @@ def slowfun(x, y):
     return slowfun_lookup_table[(x, y)]
 
 
-start = time.time()
 # Do not modify below this line!
 for i in range(50000):
     x = random.randrange(2, 14)
