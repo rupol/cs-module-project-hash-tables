@@ -2,6 +2,7 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -21,8 +22,12 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
-
+        if capacity >= MIN_CAPACITY:
+            self.capacity = capacity
+        else:
+            self.capacity = MIN_CAPACITY
+        self.buckets = [None] * capacity
+        self.num_items = 0
 
     def get_num_slots(self):
         """
@@ -34,8 +39,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return len(self.buckets)
 
     def get_load_factor(self):
         """
@@ -43,8 +47,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return self.num_items / len(self.buckets)
 
     def fnv1(self, key):
         """
@@ -55,22 +58,23 @@ class HashTable:
 
         # Your code here
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
-
+        hash = 5381
+        for char in key:
+            hash = ((hash << 5) + hash) + ord(char)
+        return hash & 0xffffffff
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
+        # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
     def put(self, key, value):
@@ -81,8 +85,32 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        # find the start of the linked list using the index
+        if self.buckets[index] is not None:
+            # search through the linked list
+            current = self.buckets[index]
+            while current is not None:
+                # if the key already exists
+                if current.key == key:
+                    # overwrite the value
+                    current.value = value
+                    return
+                current = current.next
+            # add new HashTableEntry into the head of linked list
+            head = self.buckets[index]
+            self.buckets[index] = HashTableEntry(key, value)
+            self.num_items += 1
+            self.buckets[index].next = head
+        # slot is empty
+        else:
+            # add new HashTableEntry
+            self.buckets[index] = HashTableEntry(key, value)
+            self.num_items += 1
 
+        # automatic resizing if load factor increases above 0.7
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity * 2)
 
     def delete(self, key):
         """
@@ -92,8 +120,36 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        if self.buckets[index] is not None:
+            current = self.buckets[index]
+            # if key is the current index (head)
+            if current.key == key:
+                # point the index to the next item in the linked list
+                self.buckets[index] = current.next
+                self.num_items -= 1
+                # automatic resizing if load factor decreases below 0.2
+                if self.get_load_factor() < 0.2:
+                    self.resize(self.capacity // 2)
+                return current.value
+            # otherwise, search through the linked list for the key
+            previous = current
+            current = current.next
 
+            while current is not None:
+                # if the key exists
+                if current.key == key:
+                    # link the prev to next (cut out the current node)
+                    previous.next = current.next
+                    self.num_items -= 1
+                    # automatic resizing if load factor decreases below 0.2
+                    if self.get_load_factor() < 0.2:
+                        self.resize(self.capacity // 2)
+                    return current.value
+                else:
+                    previous = current
+                    current = current.next
+        return "key not found"
 
     def get(self, key):
         """
@@ -103,8 +159,14 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        index = self.hash_index(key)
+        current = self.buckets[index]
+        while current is not None:
+            # if the key exists
+            if current.key == key:
+                return current.value
+            current = current.next
+        return None
 
     def resize(self, new_capacity):
         """
@@ -113,13 +175,28 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # make a new array
+        old_buckets = self.buckets
 
+        # check new_capacity
+        if new_capacity >= MIN_CAPACITY:
+            self.capacity = new_capacity
+        else:
+            self.capacity = MIN_CAPACITY
+        self.buckets = [None] * self.capacity
+        self.num_items = 0
+        # go through each linked list in the old array
+        for item in old_buckets:
+            current = item
+            while current is not None:
+                # insert the items into the new array
+                self.put(current.key, current.value)
+                current = current.next
 
 
 if __name__ == "__main__":
     ht = HashTable(8)
-
+    capacity_1 = ht.get_num_slots()
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
     ht.put("line_3", "All mimsy were the borogoves,")
@@ -128,26 +205,37 @@ if __name__ == "__main__":
     ht.put("line_6", "The jaws that bite, the claws that catch!")
     ht.put("line_7", "Beware the Jubjub bird, and shun")
     ht.put("line_8", 'The frumious Bandersnatch!"')
+    capacity_2 = ht.get_num_slots()
     ht.put("line_9", "He took his vorpal sword in hand;")
     ht.put("line_10", "Long time the manxome foe he sought--")
     ht.put("line_11", "So rested he by the Tumtum tree")
     ht.put("line_12", "And stood awhile in thought.")
+    capacity_3 = ht.get_num_slots()
 
     print("")
-
-    # Test storing beyond capacity
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
-
-    # Test resizing
-    old_capacity = ht.get_num_slots()
-    ht.resize(ht.capacity * 2)
-    new_capacity = ht.get_num_slots()
-
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
     # Test if data intact after resizing
     for i in range(1, 13):
         print(ht.get(f"line_{i}"))
+
+    print(f"\nResized from {capacity_1} to {capacity_2} to {capacity_3}.\n")
+
+    ht.delete("line_4")
+    ht.delete("line_5")
+    ht.delete("line_6")
+    ht.delete("line_7")
+    ht.delete("line_8")
+    ht.delete("line_9")
+    capacity_4 = ht.get_num_slots()
+    ht.delete("line_10")
+    ht.delete("line_11")
+    ht.delete("line_12")
+    capacity_5 = ht.get_num_slots()
+
+    # Test if data intact after resizing
+    for i in range(1, 4):
+        print(ht.get(f"line_{i}"))
+
+    print(f"\nResized from {capacity_3} to {capacity_4} to {capacity_5}.\n")
 
     print("")
